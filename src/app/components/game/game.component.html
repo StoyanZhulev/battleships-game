@@ -1,0 +1,20 @@
+
+<div class="wrapper">
+  <table>
+    <tr>
+      <th>
+
+      </th>
+      <th *ngFor="let col of cols">
+        {{col}}
+      </th>
+    </tr>
+    <tr *ngFor="let row of rows">
+      <td align="center">
+        {{row}}
+      </td>
+        <td id="{{row + col}}" (click)="fire( row + col)" *ngFor="let col of cols">
+        </td>
+    </tr>
+  </table>
+</div>
