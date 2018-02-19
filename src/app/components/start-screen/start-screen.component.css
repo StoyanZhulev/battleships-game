@@ -1,6 +1,6 @@
 
 .wrapper {
-    background: url('/../assets/images/battleship.jpg') no-repeat center center ;
+    background: url('../../../assets/images/battleship.jpg') no-repeat center center ;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -11,7 +11,6 @@
   }
 
   .start-game{
-    background: url('/../assets/img/brown-ppt-background-5.jpg');
     padding: 20px 60px 20px 60px;
     color: white;
     font-family: 'Chelsea Market';

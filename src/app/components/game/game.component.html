@@ -29,14 +29,33 @@
 
   <div>
     <input  matInput placeholder="Enter location"  [(ngModel)]="fireLocation">
-    <button (click)="fire()" mat-raised-button color="warn">Fire</button>
+    <button (click)="fire('')" mat-raised-button color="warn">Fire</button>
   </div>
 
   <div>
       Ships: 
       <ul>
         <li *ngFor="let ship of initialShips">
-            {{ship.name}}: size - {{ship.size}}
+            {{ship.name}}
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="shipsSunk">
+      Ships sunk: 
+      <ul>
+        <li *ngFor="let ship of shipsSunk">
+            {{ship.name}}
+        </li>
+      </ul>
+    </div>
+
+
+    <div *ngIf="showCheat">
+      Ships locations: 
+      <ul>
+        <li *ngFor="let ship of initialShips">
+            {{ship.name}}: locations: {{ship.locations}}
         </li>
       </ul>
     </div>

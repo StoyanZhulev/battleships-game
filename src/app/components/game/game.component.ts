@@ -1,9 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { GameState, INITIAL_GAME_STATE } from '../../state/initial-state';
+import { GameState,  InitialGameState } from '../../state/initial-state';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Ship } from '../../models/ship.model';
 
+const EMPTY_STRING = '';
+const A_ASCII_CODE = 65;
+const HIT_INVALID_LOCATION = 'You tried to hit invalid location!';
+const ALREADY_HIT_LOCATION = 'You already hit that location'
+const YOU_MISSED = 'You missed!';
+const YOU_SUNK = 'You sunk ';
+const YOU_HIT = 'You hit ';
+const SHIP = ' ship';
+const SHOW_COMMAND = 'show';
 
 @Component({
   selector: 'app-game',
@@ -21,26 +30,41 @@ export class GameComponent implements OnInit {
   public messageForUser: string;
 
   public initialShips: Ship[];
+  public shipsSunk: Ship[];
 
-  public fireLocation = '';
+  public fireLocation: string;
 
-  public youWon;
+  public youWon: boolean;
+
+  public showCheat: boolean;
 
   constructor(
     private router: Router
   ) {
-    this.gameState = INITIAL_GAME_STATE
+  
+  }
+
+  ngOnInit() {
+    this.gameState = new InitialGameState();
     this.rows = [];
     this.cols = [];
     this.coordinates = {};
     this.shotsTaken = 0;
     this.youWon = false;
-    this.messageForUser = ''
-    this.initialShips = this.gameState.ships
+    this.messageForUser = EMPTY_STRING;
+    this.initialShips = {...this.gameState}.ships;
+    this.shipsSunk = [];
+    this.showCheat = false;
+  
+    this.setCoordinates();
+    this.setShipLocations();
+
+
   }
 
-  ngOnInit() {
-    for (let i = 65; i < 65 + this.gameState.boardHeight; i++) {
+
+  setCoordinates(){
+    for (let i = A_ASCII_CODE; i < A_ASCII_CODE + this.gameState.boardHeight; i++) {
       let char = String.fromCharCode(i)
       this.rows.push(char);
 
@@ -50,11 +74,6 @@ export class GameComponent implements OnInit {
       let char = String.fromCharCode(64 + j)
       this.coordinates[char + j] = true;
     }
-
-    this.setShipLocations();
-
-    console.log(this.gameState.ships)
-
   }
 
   checkIfLocationIsTaken(locations) {
@@ -86,12 +105,12 @@ export class GameComponent implements OnInit {
     let row = 0;
     let col = 0;
     if (direction === 1) { //horizontl
-      row = Math.floor(Math.random() * this.gameState.boardHeight) + 1;
-      col = Math.floor(Math.random() * (this.gameState.boardWidth - (ship.size + 1))) + 1;
+      row = Math.floor(Math.random() * (this.gameState.boardHeight - 1)) + 1;
+      col = Math.floor(Math.random() * (this.gameState.boardWidth - (ship.size + 2))) + 1;
 
     } else { // vertical
-      row = Math.floor(Math.random() * (this.gameState.boardHeight - (ship.size + 1))) + 1;
-      col = Math.floor(Math.random() * this.gameState.boardWidth) + 1;
+      row = Math.floor(Math.random() * (this.gameState.boardHeight - (ship.size + 2))) + 1;
+      col = Math.floor(Math.random() * (this.gameState.boardWidth - 1)) + 1;
     }
 
     let shipLocations = [];
@@ -112,15 +131,21 @@ export class GameComponent implements OnInit {
 
   fire(coord) {
 
+
     if (!this.youWon) {
 
       let hit = false;
       let sunk = false;
 
-      let location = '';
+      let location = EMPTY_STRING;
+
+      this.showCheat = false;
       if (coord) {
         location = coord;
       } else {
+        if(SHOW_COMMAND === this.fireLocation){
+          this.showCheat = true;
+        }
         if (this.fireLocation.length >= 2) {
           let letter = this.fireLocation[0];
           let l = letter.toUpperCase();
@@ -133,7 +158,7 @@ export class GameComponent implements OnInit {
       }
 
 
-      if (location.length >= 2 && location[0].charCodeAt(0) >= 65 && location[0].charCodeAt(0) < 65 + this.gameState.boardWidth) {
+      if (location.length >= 2 && location[0].charCodeAt(0) >= A_ASCII_CODE && location[0].charCodeAt(0) < A_ASCII_CODE + this.gameState.boardWidth) {
         this.shotsTaken++;
         let el = document.getElementById('' + location)
 
@@ -146,51 +171,59 @@ export class GameComponent implements OnInit {
                   ship.size = ship.size - 1;
                   if (ship.size < 1) {
                     sunk = true;
+                    this.shipsSunk.push(ship);
                     this.gameState.shipsSunk = this.gameState.shipsSunk + 1;
                     ship.isSunk = true;
                     for (let i = 0; i < ship.locations.length; i++) {
                       document.getElementById(ship.locations[i]).setAttribute('class', 'sunk');
                     }
-                    this.messageForUser = 'You sunk ' + ship.name + ' ship!'
+                    this.messageForUser = YOU_SUNK + ship.name + SHIP
                   } else {
-                    this.messageForUser = 'You hit ' + ship.name + ' ship!'
+                    this.messageForUser = YOU_HIT + ship.name + SHIP
                   }
                   break
                 }
               }
             }
           }
+          if (sunk) {
+            el.setAttribute('class', 'sunk');
+          } else if (hit) {
+            el.setAttribute('class', 'hit');
+          } else if (!sunk) {
+            this.messageForUser = YOU_MISSED;
+            el.setAttribute('class', 'miss');
+          }
         } else {
-          this.messageForUser = 'You already hit that location'
+          this.messageForUser = ALREADY_HIT_LOCATION;
         }
 
-        if (sunk) {
-          el.setAttribute('class', 'sunk');
-        } else if (hit) {
-          el.setAttribute('class', 'hit');
-        } else if (!sunk) {
-          this.messageForUser = 'You missed!'
-
-          el.setAttribute('class', 'miss');
-        }
+       
       } else {
-        this.messageForUser = 'You tried to hit invalid location!'
+        if(!this.showCheat){
+          this.messageForUser = HIT_INVALID_LOCATION;
+        }
       }
 
 
 
       if (this.gameState.shipsSunk === this.gameState.shipsCount) {
+        let obj = new InitialGameState();
+        console.log(obj)
         this.youWon = true;
       }
 
-      this.fireLocation = ''
+      this.fireLocation = EMPTY_STRING
 
     }
   }
 
 
   playAgain() {
-    window.location.reload();
+      this.router.navigateByUrl('')
+
   }
 
 }
+
+
