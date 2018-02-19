@@ -36,9 +36,22 @@ tr {
 } */
 
 .wrapper {
+    float: left;
     width: 70%;
     height: 90vh;
-    align-self: center;
+    display: inline-block;
+}
+
+h3{
+    text-align: center;
+}
+
+.info{
+    float: left;
+    display: inline-block; 
+    width: 25%;
+    height: 90vh;    
+    border: 1px solid black   
 }
 
 table, th, td {

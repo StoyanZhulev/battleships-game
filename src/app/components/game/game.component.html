@@ -1,4 +1,5 @@
 
+
 <div class="wrapper">
   <table>
     <tr>
@@ -13,8 +14,46 @@
       <td align="center">
         {{row}}
       </td>
-        <td id="{{row + col}}" (click)="fire( row + col)" *ngFor="let col of cols">
+        <td id="{{row + col}}" (click)="fire( row + col)" class="def" *ngFor="let col of cols">
         </td>
     </tr>
   </table>
+</div>
+<div class="info">
+  <h3>Game information</h3>
+  <div>
+    <p>
+      To hit a location just click on it, or enter its coordinates in the field below (e.g A2) and press Fire.
+    </p>
+  </div>
+
+  <div>
+    <input  matInput placeholder="Enter location"  [(ngModel)]="fireLocation">
+    <button (click)="fire()" mat-raised-button color="warn">Fire</button>
+  </div>
+
+  <div>
+      Ships: 
+      <ul>
+        <li *ngFor="let ship of initialShips">
+            {{ship.name}}: size - {{ship.size}}
+        </li>
+      </ul>
+    </div>
+
+  <div *ngIf="!youWon">
+    <h2>{{messageForUser}}</h2>
+  </div>
+
+  <div>
+
+  </div>
+
+     
+  <div *ngIf="youWon">
+    <h1>You won!</h1>
+    <h4>Shots taken: {{shotsTaken}}</h4>
+    <h6>Click the button to play again</h6>
+    <button (click)="playAgain()" mat-raised-button color="warn">Play again</button>    
+  </div>
 </div>
