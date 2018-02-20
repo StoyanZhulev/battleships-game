@@ -27,15 +27,13 @@ export class GameComponent implements OnInit {
   public coordinates;
   private shotsTaken: number;
 
-  public messageForUser: string;
-
+ 
   public initialShips: Ship[];
   public shipsSunk: Ship[];
 
+  public messageForUser: string;
   public fireLocation: string;
-
   public youWon: boolean;
-
   public showCheat: boolean;
 
   constructor(
@@ -62,8 +60,12 @@ export class GameComponent implements OnInit {
 
   }
 
-
-  setCoordinates(){
+  /*
+  * Function that populates the rows and cols of the board
+  * Rows are populated with the coresponding ascii character until reaching the board height
+  * Cols are populated with the numbers from 1 to board's width
+  */
+  setCoordinates(): void{
     for (let i = A_ASCII_CODE; i < A_ASCII_CODE + this.gameState.boardHeight; i++) {
       let char = String.fromCharCode(i)
       this.rows.push(char);
@@ -76,7 +78,12 @@ export class GameComponent implements OnInit {
     }
   }
 
-  checkIfLocationIsTaken(locations) {
+  /*
+  * Gets an array of locations (e.g A1, A2, A3)
+  * Checks if there is already a ship on any of the locations in the array
+  * If a location is taken - returns true, if not - returns false
+  */
+  checkIfLocationIsTaken(locations: Array<string>): boolean {
     for (var i = 0; i < this.gameState.ships.length; i++) {
       let ship = this.gameState.ships[i];
       for (var j = 0; j < ship.locations.length; j++) {
@@ -88,7 +95,10 @@ export class GameComponent implements OnInit {
     return false;
   }
 
-  setShipLocations() {
+  /*
+  * While the lactions are taken, generates new locations and assigns them to the ships
+  */
+  setShipLocations(): void {
     var locations = [];
     for (let ship of this.gameState.ships) {
       do {
@@ -98,17 +108,28 @@ export class GameComponent implements OnInit {
     }
   }
 
-  getLocations(ship) {
+  /*
+  * Takes a ship as a parameter
+  * Calculates random direction and starting location for the ship
+  * Depending on the direction populates the locations for the ship and returns an arra of locations
+  */
+  getLocations(ship): Array<string> {
 
     let direction = Math.floor(Math.random() * 2);
 
     let row = 0;
     let col = 0;
-    if (direction === 1) { //horizontl
+
+    /*
+    * If direction === 1 the ship will be horizontal
+    * If direction !== 1 the ship will be vertical
+    * Starting position is a random number between 1 and and the board size - ship's size
+    */
+    if (direction === 1) {
       row = Math.floor(Math.random() * (this.gameState.boardHeight - 1)) + 1;
       col = Math.floor(Math.random() * (this.gameState.boardWidth - (ship.size + 2))) + 1;
 
-    } else { // vertical
+    } else { 
       row = Math.floor(Math.random() * (this.gameState.boardHeight - (ship.size + 2))) + 1;
       col = Math.floor(Math.random() * (this.gameState.boardWidth - 1)) + 1;
     }
@@ -128,12 +149,17 @@ export class GameComponent implements OnInit {
 
 
 
-
-  fire(coord) {
-
-
+  /*
+  * Can take coordinate (e.g A1) for a fire location
+  * If parameter is not passed to the function it uses the fireLocation property which is binded with an input field 
+  * User can either click on a cell or write its location to fire
+  * Shots taken in the game are count here
+  * If the location has a ship, ship's size decreases until sinking
+  * User cant fire the same location more than once
+  * If all ships are sunk, game stops and shows statistics
+  */
+  fire(coord: string): void {
     if (!this.youWon) {
-
       let hit = false;
       let sunk = false;
 
@@ -208,8 +234,6 @@ export class GameComponent implements OnInit {
 
 
       if (this.gameState.shipsSunk === this.gameState.shipsCount) {
-        let obj = new InitialGameState();
-        console.log(obj)
         this.youWon = true;
       }
 
@@ -221,7 +245,6 @@ export class GameComponent implements OnInit {
 
   playAgain() {
       this.router.navigateByUrl('')
-
   }
 
 }
